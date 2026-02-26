@@ -205,6 +205,13 @@ class Preferences:
         atkn = self.conf["System"]["atkn"]
         return atkn
 
+    def setApiToken(self, token):
+        token = str(token)
+        if token != token.strip():
+            raise ValueError("API token cannot contain leading/trailing whitespace.")
+        self.conf["System"]["atkn"] = token
+        self._save()
+
     def getSetTargetCommand(self):
         self._reload()
         if "set_target_command" not in self.conf["Target"]:

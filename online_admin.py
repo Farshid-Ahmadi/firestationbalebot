@@ -202,24 +202,41 @@ BASE_HTML = """
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{{ title }}</title>
   <style>
-    body { font-family: Tahoma, Arial, sans-serif; direction: rtl; margin: 0; background: #f6f7fb; color: #222; }
-    .wrap { max-width: 1100px; margin: 20px auto; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 16px; }
-    .top a { margin-left: 8px; text-decoration: none; color: #0a58ca; }
-    .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 10px 0; }
+    :root {
+      --bg: #f3f5f9;
+      --card: #ffffff;
+      --line: #dfe4ea;
+      --text: #1f2937;
+      --muted: #5f6c80;
+      --primary: #0f766e;
+      --primary-soft: #d9f6f2;
+      --danger: #b10000;
+    }
+    body { font-family: Tahoma, Arial, sans-serif; direction: rtl; margin: 0; color: var(--text); background: radial-gradient(circle at top left, #eef7ff 0%, var(--bg) 45%, #eef3f8 100%); }
+    .wrap { max-width: 1120px; margin: 24px auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; box-shadow: 0 8px 28px rgba(31,41,55,.08); }
+    .top { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .top a { text-decoration: none; color: var(--primary); border: 1px solid #c6ece7; background: #f5fffd; padding: 6px 10px; border-radius: 999px; font-size: 14px; }
+    .top a:hover { background: var(--primary-soft); }
+    .card { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 13px; margin: 10px 0; }
     input[type=text], input[type=password], input[type=number], textarea, select {
-      width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #bbb; border-radius: 6px;
+      width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #bfc9d7; border-radius: 7px;
       direction: rtl; text-align: right;
     }
+    input[type=password].token { direction: ltr; text-align: left; letter-spacing: .2px; font-family: monospace; }
     textarea { min-height: 120px; }
-    button { padding: 8px 12px; border: 1px solid #aaa; border-radius: 6px; background: #f0f0f0; cursor: pointer; }
+    button { padding: 8px 12px; border: 1px solid #0d6e65; border-radius: 7px; background: #0f766e; color: #fff; cursor: pointer; }
+    button:hover { background: #0a665f; }
     .row { display: grid; grid-template-columns: 170px 1fr; gap: 10px; align-items: center; margin: 8px 0; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .muted { color: #666; font-size: 13px; }
+    .muted { color: var(--muted); font-size: 13px; }
     .flash { background: #fff8d6; border: 1px solid #f1d774; padding: 10px; border-radius: 6px; margin: 10px 0; }
-    .danger { color: #b10000; }
+    .danger { color: var(--danger); }
     ul { margin: 0; padding-right: 18px; }
+    ol { margin: 0; padding-right: 18px; }
     pre { white-space: pre-wrap; word-break: break-word; background: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 10px; }
     .ml8 { margin-left: 8px; }
+    .hero { border: 1px solid #b9ede7; background: linear-gradient(115deg, #f0fffb 0%, #eef8ff 100%); border-radius: 12px; padding: 14px; }
+    .kpi { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--primary-soft); border: 1px solid #b9ede7; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -312,9 +329,25 @@ def dashboard():
         return redirect(url_for("login"))
 
     _, bot_msg = ensure_bot_running()
+    p = Preferences()
     body = f"""
     <h2>مدیریت آنلاین ربات</h2>
-    <div class="card"><b>وضعیت ربات:</b> {escape(bot_msg)}</div>
+    <div class="hero">
+      <div><b>وضعیت ربات:</b> {escape(bot_msg)}</div>
+      <div class="muted" style="margin-top:8px;">
+        <span class="kpi">دستور تعیین مقصد: {escape(p.getSetTargetCommand())}</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>راهنمای راه‌اندازی و استفاده</h3>
+      <ol>
+        <li>ابتدا ربات را در پیام‌رسان بله بسازید و توکن آن (`atkn`) را در بخش تنظیمات ثبت کنید.</li>
+        <li>ربات را به گروه مقصد اضافه کنید.</li>
+        <li>در همان گروه، دستور «{escape(p.getSetTargetCommand())}» را برای ربات ارسال کنید تا گروه مقصد ثبت شود.</li>
+        <li>کاربران گزارش را به ربات می‌فرستند و ربات آن را به گروه مقصد اعلان می‌کند.</li>
+        <li>برای ورود به بخش مدیریت، از رمز تعریف‌شده در تنظیمات استفاده کنید.</li>
+      </ol>
+    </div>
     <div class="card">
       <ul>
         <li><a href="/messages">ویرایش پیام‌ها</a></li>
@@ -564,13 +597,30 @@ def settings_page():
             p.setChatLifeSpan(str(chat_life))
             p.setAdminPassword((request.form.get("admin_password") or "").strip())
             p.setAdminRequestBanDuration(str(ban_hours))
+
+            # Sensitive field: accept token exactly as entered (no trim),
+            # and reject leading/trailing whitespace.
+            token_raw = request.form.get("api_token") or ""
+            if token_raw:
+                if token_raw != token_raw.strip():
+                    raise ValueError("TOKEN_WHITESPACE")
+                p.setApiToken(token_raw)
+
             flash("تنظیمات ذخیره شد.")
-        except ValueError:
-            flash("مقادیر عددی نامعتبر هستند (باید >= 1 باشند).")
+        except ValueError as exc:
+            if str(exc) == "TOKEN_WHITESPACE":
+                flash("توکن ربات نباید در ابتدا یا انتها فاصله داشته باشد.")
+            else:
+                flash("مقادیر عددی نامعتبر هستند (باید >= 1 باشند).")
+        except Exception:
+            flash("خطا در ذخیره تنظیمات.")
         return redirect(url_for("settings_page"))
 
     checked_enable = "checked" if p.isCriticismEnabled() else ""
     checked_anon = "checked" if p.isCriticismAnonymous() else ""
+
+    current_token = p.getApiToken()
+    token_hint = "تنظیم نشده" if not current_token or current_token == "Write your atkn here!" else f"{current_token[:6]}...{current_token[-4:]}" if len(current_token) > 10 else "تنظیم شده"
 
     body = f"""
     <h2>تنظیمات</h2>
@@ -583,6 +633,8 @@ def settings_page():
       <div class="row"><label>مدت پاسخ‌گویی (ساعت)</label><input type="number" min="1" name="chat_life" value="{escape(p.getChatLifeSpan())}"></div>
       <div class="row"><label>رمز ادمین</label><input type="text" name="admin_password" value="{escape(p.getAdminPassword())}"></div>
       <div class="row"><label>محدودیت رمز اشتباه (ساعت)</label><input type="number" min="1" name="admin_ban" value="{escape(p.getAdminRequestBanDuration())}"></div>
+      <div class="row"><label>توکن ربات (ATKN)</label><input class="token" type="password" name="api_token" value="" placeholder="برای عدم تغییر خالی بگذارید" autocomplete="off" spellcheck="false"></div>
+      <div class="muted">وضعیت توکن فعلی: {escape(token_hint)} | توکن نباید ابتدا/انتها فاصله داشته باشد.</div>
       <button type="submit">ذخیره</button>
     </form>
     """
