@@ -1,0 +1,45 @@
+Traceback (most recent call last):
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/project/firestationbot/main.py", line 1, in <module>
+    from bale import Update, Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Location
+ModuleNotFoundError: No module named 'bale'
+Traceback (most recent call last):
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/project/firestationbot/main.py", line 1, in <module>
+    from bale import Update, Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Location
+ModuleNotFoundError: No module named 'bale'
+Traceback (most recent call last):
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/project/firestationbot/main.py", line 1, in <module>
+    from bale import Update, Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Location
+ModuleNotFoundError: No module named 'bale'
+Traceback (most recent call last):
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/project/firestationbot/main.py", line 1, in <module>
+    from bale import Update, Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Location
+ModuleNotFoundError: No module named 'bale'
+<User is_bot=True, first_name='firemantest1bot', username='firemantest1bot', id=1956108325> is Ready!
+[2026-02-26 15:16:05] [ERROR   ] bale.updater: Exception happened when polling for updates.
+Traceback (most recent call last):
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/bale/request/http.py", line 123, in request
+    async with self.__session.request(method=method, url=url, **kwargs) as original_response:
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/aiohttp/client.py", line 1187, in __aenter__
+    self._resp = await self._coro
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/aiohttp/client.py", line 601, in _request
+    await resp.start(conn)
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 960, in start
+    with self._timer:
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/aiohttp/helpers.py", line 735, in __exit__
+    raise asyncio.TimeoutError from None
+asyncio.exceptions.TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/bale/updater.py", line 104, in _network_loop_retry
+    if not await action_cb():
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/bale/updater.py", line 80, in action_getupdates
+    raise exc
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/bale/updater.py", line 78, in action_getupdates
+    updates = await self.bot.get_updates(offset=self._last_offset)
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/bale/bot.py", line 1936, in get_updates
+    response = await self._http.get_updates(params=handle_request_param(dict(offset=offset, limit=limit)))
+  File "/home/farshid/Bot Projects/Fire Station bot/v7/project/lib/python3.10/site-packages/bale/request/http.py", line 157, in request
+    raise HTTPException(error)
+bale.error.HTTPException
