@@ -1,4 +1,12 @@
 from configparser import ConfigParser
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parent
+MESSAGES_FILE = BASE_DIR / "messages.ini"
+SETTINGS_FILE = BASE_DIR / "setting.ini"
+SUBJECTS_FILE = BASE_DIR / "subjects.ini"
+QUICK_RESPONSES_FILE = BASE_DIR / "quick_responses.ini"
 
 class Target:
     """Backward-compatible wrapper around Preferences target settings."""
@@ -48,7 +56,7 @@ class Messages:
 
     def __init__(self):
         self.conf = ConfigParser()
-        self.conf.read("messages.ini")
+        self.conf.read(str(MESSAGES_FILE))
 
         update = False
         if "Messages" not in self.conf:
@@ -61,7 +69,7 @@ class Messages:
                 update = True
 
         if update:
-            with open("messages.ini", "w") as file:
+            with open(MESSAGES_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
 
     def getAllMessages(self):
@@ -76,13 +84,13 @@ class Messages:
         
     def set(self, key:str, value:str):
         self.conf["Messages"][key] = value
-        with open("messages.ini", "w") as file:
+        with open(MESSAGES_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
 
 class Preferences:
     def __init__(self):
         self.conf = ConfigParser()
-        self.conf.read("setting.ini")
+        self.conf.read(str(SETTINGS_FILE))
 
         # add section if section not found
         update = False
@@ -140,15 +148,15 @@ class Preferences:
                 update = True
 
         if update:
-            with open("setting.ini", "w") as file:
+            with open(SETTINGS_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
 
     def _save(self):
-        with open("setting.ini", "w") as file:
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
 
     def _reload(self):
-        self.conf.read("setting.ini")
+        self.conf.read(str(SETTINGS_FILE))
 
     def isCriticismEnabled(self):
         self._reload()
@@ -272,7 +280,7 @@ class Preferences:
         self._save()
 
 class Subjects(dict):
-    FILE = "subjects.ini"
+    FILE = SUBJECTS_FILE
     def __init__(self):
         self.conf = ConfigParser()
         self._checkFile()
@@ -280,7 +288,7 @@ class Subjects(dict):
 
     def _checkFile(self):
         try:
-            with open(self.FILE, "r") as file:        
+            with open(self.FILE, "r", encoding="utf-8") as file:
                 self.conf.read_file(file)
                 if "Subjects" not in self.conf.sections():
                     self._createFile()
@@ -309,7 +317,7 @@ class Subjects(dict):
         }
         conf = ConfigParser()
         conf.read_dict(data)
-        with open(self.FILE,"w") as file:
+        with open(self.FILE, "w", encoding="utf-8") as file:
             conf.write(file)
 
     def _load(self):
@@ -431,7 +439,7 @@ class Subjects(dict):
         self._save()        
 
     def _save(self):
-        with open(self.FILE,"w") as file:
+        with open(self.FILE, "w", encoding="utf-8") as file:
             self.conf.write(file)
         self._load()
 
@@ -482,7 +490,7 @@ class QuickResponses:
     def __init__(self):
         super().__init__()
         self.conf = ConfigParser()
-        self.conf.read("quick_responses.ini")
+        self.conf.read(str(QUICK_RESPONSES_FILE))
 
         # add section if section not found
         update = False
@@ -494,7 +502,7 @@ class QuickResponses:
             self.conf["Report"]={}              # to prevent error create a new file
             update = True
         if update:
-            with open("quick_responses.ini", "w") as file:
+            with open(QUICK_RESPONSES_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
     def _getSorted(self, section):
         data = dict(self.conf[section].items())
@@ -509,7 +517,7 @@ class QuickResponses:
     
     def setCriticismQuickResponse(self, index:str, text:str):
         self.conf["Criticism"][index] = text
-        with open("quick_responses.ini", "w") as file:
+        with open(QUICK_RESPONSES_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
 
     def addCriticismQuickResponse(self, text:str):
@@ -518,12 +526,12 @@ class QuickResponses:
     
     def removeCriticismQuickResponse(self, index:str):
         self.conf["Criticism"].pop(index)
-        with open("quick_responses.ini", "w") as file:
+        with open(QUICK_RESPONSES_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
     
     def setReportQuickResponse(self, index:str, text:str):
         self.conf["Report"][index] = text
-        with open("quick_responses.ini", "w") as file:
+        with open(QUICK_RESPONSES_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
     
     def addReportQuickResponse(self, text:str):
@@ -532,7 +540,7 @@ class QuickResponses:
     
     def removeReportQuickResponse(self, index:str):
         self.conf["Report"].pop(index)
-        with open("quick_responses.ini", "w") as file:
+        with open(QUICK_RESPONSES_FILE, "w", encoding="utf-8") as file:
                 self.conf.write(file)
         
 if __name__=="__main__":

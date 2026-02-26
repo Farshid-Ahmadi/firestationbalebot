@@ -5,6 +5,9 @@ from bale import Bot, Update, Message, InlineKeyboardButton, InlineKeyboardMarku
 from bale.ui import MenuKeyboardMarkup,MenuKeyboardButton     
 from file_manager import Messages, QuickResponses, Subjects, Preferences
 
+
+BASE_DIR = Path(__file__).resolve().parent
+
 class ActiveChat:
     class States:
             NEW = "جدید"				    # in this state bot will say hello and send subject
@@ -53,18 +56,8 @@ class DictionaryLogger:
     defined folder. this methad create a file for each day
     """
     def __init__(self, folder):
-        # creating directory
-        import os
-        import platform
-
-        self.log_folder = folder
-        
-        self.operation_system = platform.system()     # used to check if we should use slash or backslash
-
-        try:
-            os.mkdir(self.log_folder)
-        except FileExistsError:
-            pass
+        self.log_folder = BASE_DIR / folder
+        self.log_folder.mkdir(parents=True, exist_ok=True)
 
     def saveLog(self, dictionary, filename:str=""):            
             _date = f"{time.localtime()[0]}-{time.localtime()[1]}-{time.localtime()[2]}"
@@ -73,12 +66,9 @@ class DictionaryLogger:
             if not filename:
                 filename = _date
 
-            if self.operation_system == "Windows":
-                file = self.log_folder+"\\"+filename+".log"
-            else:
-                file = self.log_folder+"/"+filename+".log"
+            file = self.log_folder / f"{filename}.log"
 
-            with open(file,"a") as log:
+            with open(file, "a", encoding="utf-8") as log:
                 log.write(f"\n{'-'*10}\n{_time}\n")   # seperator and time
                 
                 for k in dictionary:
@@ -794,7 +784,7 @@ class AdminView:
     async def chatHistoryMenu(self, chat_id:str):
         """List files inside Chat History and allow admin to view file entries."""
         self._set_page(chat_id, self.PAGE_CHAT_HISTORY)
-        history_dir = Path("Chat History")
+        history_dir = BASE_DIR / "Chat History"
 
         if not history_dir.exists() or not history_dir.is_dir():
             menu = InlineKeyboardMarkup()
@@ -879,7 +869,7 @@ class AdminView:
             return
 
         selected_name = names[index - 1]
-        history_dir = Path("Chat History").resolve()
+        history_dir = (BASE_DIR / "Chat History").resolve()
         file_path = (history_dir / selected_name).resolve()
 
         # Prevent path traversal and invalid selection.

@@ -1,8 +1,10 @@
 import sqlite3, threading, time
+from pathlib import Path
 from helper import ActiveChat
 
 
-DATABASE = "database.db"
+BASE_DIR = Path(__file__).resolve().parent
+DATABASE = BASE_DIR / "database.db"
 
 class ChatHandler:
     TABLE = "reports"
@@ -23,7 +25,7 @@ class ChatHandler:
         # init values
         self.active_chat_age_hours = active_age_hours
         self.total_chat_age_hours = total_age_hours
-        self.connection = sqlite3.connect(DATABASE)
+        self.connection = sqlite3.connect(str(DATABASE))
         self.cursor = self.connection.cursor()
 
         # create database table and indexes
@@ -50,7 +52,7 @@ class ChatHandler:
         self.cleaner.start()
 
     def _deleteOldRecords(self, life_span):
-        cleaner_connection = sqlite3.connect(DATABASE)
+        cleaner_connection = sqlite3.connect(str(DATABASE))
         cleaner_cursor = cleaner_connection.cursor()
         while True:
             cleaner_cursor.execute(f"""DELETE FROM {self.TABLE}
@@ -209,7 +211,7 @@ class AdminRequestBanningHandler:
     def __init__(self, banning_duration_hours:str):
         # init values
         self.banning_duration = banning_duration_hours
-        self.connection = sqlite3.connect(DATABASE)
+        self.connection = sqlite3.connect(str(DATABASE))
         self.cursor = self.connection.cursor()
 
         # create database table and indexes
@@ -226,7 +228,7 @@ class AdminRequestBanningHandler:
         self.banning_duration = banning_duration_hours
 
     def _deleteOldRecords(self):
-        cleaner_connection = sqlite3.connect(DATABASE)
+        cleaner_connection = sqlite3.connect(str(DATABASE))
         cleaner_cursor = cleaner_connection.cursor()
         while True:
             cleaner_cursor.execute(f"""DELETE FROM {self.TABLE}
